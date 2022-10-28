@@ -32,6 +32,9 @@ max3Tupled (x,y,z) | x>=y,x>=z = x;
 max3Tupled (x,y,z) | y>=x,y>=z = y;
 max3Tupled (_,_,z)  = z;
 
+max3Tup :: Ord a => (a, a, a) -> a
+max3Tup (x,y,z) = max3 x y z
+
 prop_max3Tupled :: (Integer, Integer, Integer)  -> Bool
 prop_max3Tupled (x,y,z) = max3Tupled (x,y,z) == last (sort [x, y, z])
 
@@ -43,8 +46,14 @@ med x y z  | y>=x,y>=z,x<=z = z;
 med x y _  | x>=y = x; -- z has to be the largest
 med _ y _  = y;
 
+betterMed :: Ord a => a -> a -> a -> a
+betterMed x y z= max3 (mini x y) (mini y z) (mini x z) 
+
 prop_med :: Integer -> Integer -> Integer -> Bool
 prop_med x y z = med x y z == head (tail (sort [x, y, z]))
+
+prop_betterMed :: Integer -> Integer -> Integer -> Bool
+prop_betterMed x y z = med x y z == betterMed x y z
 
 main :: IO ()
 main = do

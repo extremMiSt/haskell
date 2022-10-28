@@ -28,7 +28,8 @@ init (x:xs) = x : Main.init xs
 
 (++) :: [a] -> [a] -> [a]
 [] ++ x = x
-x ++ y = (Main.init x) Main.++ (Main.last x : y)
+--x ++ y = (Main.init x) Main.++ (Main.last x : y) -- quadratic runtime
+(x:xs) ++ y = x: (xs Main.++ y) -- linear runtime
 
 zip :: [a] -> [b] -> [(a, b)]
 zip [] _ = []

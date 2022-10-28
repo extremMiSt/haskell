@@ -3,6 +3,10 @@ module Main where
 import Test.QuickCheck
 import Prelude hiding (subtract)
 
+--data Stack = Stack [Integer]
+--instance Eq Stack where 
+--   dropwhile (0 ==) (reverse as) == drophile (0 ==) (reverse bs)
+
 push :: a -> [a] -> [a]
 --you could "optimize" for pushing 0s in an "empty" stack, but I can't be bothered
 push n l = n:l 
@@ -69,7 +73,7 @@ prop_task = head (add (push 8 (pop []))) == (8::Integer)
 readCommand :: String -> [Integer] -> [Integer]
 readCommand ('p':'u':'s':'h':' ':xs) stack = push (read xs) stack
 readCommand "pop" stack = pop stack
-readCommand "dup" stack = pop stack
+readCommand "dup" stack = dup stack
 readCommand "add" stack = add stack
 readCommand "subtract" stack = subtract stack
 readCommand "multiply" stack = multiply stack
