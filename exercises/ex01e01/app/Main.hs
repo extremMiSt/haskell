@@ -1,6 +1,6 @@
 module Main where
 import Data.List (sort)
-import Test.QuickCheck ( quickCheck )
+import Test.QuickCheck (quickCheck)
 
 -- | can work on integers, if you want a signature that only works on integers then
     -- maxi::Integer -> Integer -> Integer

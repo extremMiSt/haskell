@@ -1,4 +1,4 @@
-import Test.QuickCheck
+--import Test.QuickCheck
 
 dollarRate = 0.98546541
 
@@ -21,3 +21,9 @@ price' = 79
 
 price'' :: Num a=>a
 price'' = 79
+
+prim:: [Integer]
+prim = [x | x <- [2..], null [div | div <- [2..(div x 2)], mod x div == 0]]
+
+main :: IO ()
+main = print (take 5 prim)
