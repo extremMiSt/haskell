@@ -1,13 +1,29 @@
+{-# LANGUAGE InstanceSigs #-}
 module Main where
 
 data Entry = X | O | E
-    deriving (Show, Eq)
+    deriving (Eq)
 
 data Line = Line {fstE::Entry, sndE::Entry, trdE::Entry}
-    deriving (Show, Eq)
+    deriving (Eq)
 
 data Tic = Tic{fstL::Line, sndL::Line, trdL::Line}
-    deriving (Show)
+
+instance Show Entry where
+  show :: Entry -> String
+  show X = "X"
+  show O = "O"
+  show E = " "
+  
+
+instance Show Line where
+  show :: Line -> String
+  show x = show(fstE x) ++ show(sndE x) ++ show(trdE x)
+
+instance Show Tic where
+  show :: Tic -> String
+  show x = show(fstL x) ++ "\n" ++show(sndL x) ++ "\n" ++ show(trdL x)
+
 
 hasWon :: Tic -> Entry -> Bool
 hasWon t e = fstL t == Line e e e || sndL t == Line e e e || trdL t == Line e e e || 
@@ -25,9 +41,9 @@ transpose (Tic (Line a1 b1 c1)
 
 main :: IO ()
 main = do
-    let f = Tic (Line O E E)
+    let f = Tic (Line O X X)
                 (Line E O E)
-                (Line E E O)
+                (Line X E O)
     print f
     print (hasWon f X)
     print (hasWon f O)
