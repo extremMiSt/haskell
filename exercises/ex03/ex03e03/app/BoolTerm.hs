@@ -2,6 +2,9 @@
 -- Janek Spaderna <janek.spaderna@pluto.uni-freiburg.de>
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use :" #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module BoolTerm where
 
@@ -30,7 +33,7 @@ type Position = [Integer]
 pos :: BoolTerm -> [Position]
 pos T = [[]]
 pos F = [[]]
-pos (Var x) = [[]]
+pos (Var _) = [[]]
 pos (Not t) = [[]] ++ [1:x | x <- pos t]
 pos (Conj t1 t2) = [[]] ++ [1:x | x <- pos t1] ++ [2:x | x <- pos t2]
 pos (Disj t1 t2) = [[]] ++ [1:x | x <- pos t1] ++ [2:x | x <- pos t2]
@@ -38,13 +41,21 @@ pos (Disj t1 t2) = [[]] ++ [1:x | x <- pos t1] ++ [2:x | x <- pos t2]
 (|.) :: BoolTerm -> Position -> BoolTerm
 (|.) t [] = t
 (|.) (Not t) (1:xs) = t |. xs
-(|.) (Conj t1 t2) (1:xs) = t1 |. xs
-(|.) (Conj t1 t2) (2:xs) = t2 |. xs
-(|.) (Disj t1 t2) (1:xs) = t1 |. xs
-(|.) (Disj t1 t2) (2:xs) = t2 |. xs
+(|.) (Conj t1 _) (1:xs) = t1 |. xs
+(|.) (Conj _ t2) (2:xs) = t2 |. xs
+(|.) (Disj t1 _) (1:xs) = t1 |. xs
+(|.) (Disj _ t2) (2:xs) = t2 |. xs
+(|.) t l = error (show l ++ " not valid for " ++ show t)
 
 replace :: BoolTerm -> BoolTerm -> Position -> BoolTerm
-replace = error "TODO"
+replace _ r [] = r
+replace (Not t) r (1:ps) = Not (replace t r ps)
+replace (Conj t1 t2) r (1:ps) = Conj (replace t1 r ps) t2
+replace (Conj t1 t2) r (2:ps) = Conj t1 (replace t2 r ps)
+replace (Disj t1 t2) r (1:ps) = Disj (replace t1 r ps) t2
+replace (Disj t1 t2) r (2:ps) = Disj t1 (replace t2 r ps)
+replace t _ p = error (show p ++ " not valiD for " ++ show t)
+
 
 -------------------------------------------------------------------------------
 -- Properties
@@ -106,3 +117,14 @@ instance Arbitrary BoolTerm where
       invE lambda u = (-log (1 - u)) / lambda
 
   shrink = genericShrink
+
+
+-----------------------------------------------------------------------------
+-- Generate a function to check all properties.
+--
+-- Has to go at the very bottom of the file!
+
+return []
+
+checkAll :: IO Bool
+checkAll = $quickCheckAll

@@ -55,7 +55,7 @@ addTrack t b = MediaBib
 buildBib :: TrackList -> MediaBib
 buildBib [] =   MediaBib [] [] []
 buildBib ((i, title, artist, duration, []):xs) = addTrack (Track i title artist duration) (buildBib xs)
-buildBib ((i, title, artist, duration, y:ys):xs) = addAlbum i (Album y []) (buildBib ((i, title, artist, duration, (ys)):xs))
+buildBib ((i, title, artist, duration, y:ys):xs) = addAlbum i (Album y []) (buildBib ((i, title, artist, duration, ys):xs))
 
 albumRuntime :: Album -> [Track] -> Duration
 albumRuntime album t = foldr ((+).trackDuration) 0 (filter (inAlbum album) t)
@@ -68,7 +68,7 @@ allAlbumRuntime (MediaBib _ [] _) = []
 allAlbumRuntime (MediaBib t (x:xs) v) = (albumName x, albumRuntime x t):allAlbumRuntime (MediaBib t xs v)
 
 avgRating :: User ->  [UserRating] -> Album -> (Album, Integer)
-avgRating user r album =  (album, sum (map (trackRating (ratingByUser user r)) (albumTracks album)) `div` fromIntegral(length (albumTracks album)))
+avgRating u r album =  (album, sum (map (trackRating (ratingByUser u r)) (albumTracks album)) `div` fromIntegral(length (albumTracks album)))
 
 
 trackRating :: Num a => [UserRating] -> Id -> a
@@ -80,7 +80,7 @@ ratingByUser :: User -> [UserRating] -> [UserRating]
 ratingByUser u r = [x | x <- r, user x == u]
 
 bestAlbums :: MediaBib -> User -> [(Album, Integer)]
-bestAlbums db user = filter ((50<=).snd) (map (avgRating user (ratings db)) (albums db))
+bestAlbums db u = filter ((50<=).snd) (map (avgRating u (ratings db)) (albums db))
 
 main :: IO ()
 main = do
