@@ -1,0 +1,25 @@
+cabal-version:      3.0
+name:               ex03e03
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            MIT
+license-file:       LICENSE
+author:             Michael Steinle
+maintainer:         michael.steinle@gmail.com
+-- copyright:
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+extra-source-files: BoolTerm.hs
+
+common warnings
+    ghc-options: -Wall
+
+executable ex03e03
+    import:           warnings
+    main-is:          Main.hs
+    other-modules:    BoolTerm
+    -- other-extensions:
+    build-depends:    base ^>=4.16.3.0, QuickCheck
+    hs-source-dirs:   app
+    default-language: Haskell2010
