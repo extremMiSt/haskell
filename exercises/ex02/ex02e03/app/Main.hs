@@ -15,7 +15,7 @@ data Album = Album {albumName :: Title, albumTracks :: [Id]}
 
 type User = String
 data Rating = Good | Bad
-    deriving (Show)
+    deriving (Show, Eq)
 data UserRating = UserRating {user :: User, track:: Id, rating :: Rating}
     deriving (Show)
 
@@ -57,12 +57,37 @@ buildBib [] =   MediaBib [] [] []
 buildBib ((i, title, artist, duration, []):xs) = addTrack (Track i title artist duration) (buildBib xs)
 buildBib ((i, title, artist, duration, y:ys):xs) = addAlbum i (Album y []) (buildBib ((i, title, artist, duration, (ys)):xs))
 
-queryTitlesAndDuration :: MediaBib -> [(Title, Duration)]
-queryTitlesAndDuration (MediaBib _ [] _) = []
-queryTitlesAndDuration (MediaBib a ((Album name []):xs) r) = []
-queryTitlesAndDuration (MediaBib a ((Album name (y:ys)):xs) r) = []
+albumRuntime :: Album -> [Track] -> Duration
+albumRuntime album t = foldr ((+).trackDuration) 0 (filter (inAlbum album) t)
 
+inAlbum :: Album -> Track -> Bool
+inAlbum a t = trackId t `elem` albumTracks a
+
+allAlbumRuntime :: MediaBib -> [(Title, Duration)]
+allAlbumRuntime (MediaBib _ [] _) = []
+allAlbumRuntime (MediaBib t (x:xs) v) = (albumName x, albumRuntime x t):allAlbumRuntime (MediaBib t xs v)
+
+avgRating :: User ->  [UserRating] -> Album -> (Album, Integer)
+avgRating user r album =  (album, sum (map (trackRating (ratingByUser user r)) (albumTracks album)) `div` fromIntegral(length (albumTracks album)))
+
+
+trackRating :: Num a => [UserRating] -> Id -> a
+trackRating [] _ = 0
+trackRating ((UserRating  _ x r ):xs) t  = if (t == x)&&(r==Good) then 100 else trackRating xs t
+
+
+ratingByUser :: User -> [UserRating] -> [UserRating]
+ratingByUser u r = [x | x <- r, user x == u]
+
+bestAlbums :: MediaBib -> User -> [(Album, Integer)]
+bestAlbums db user = filter ((50<=).snd) (map (avgRating user (ratings db)) (albums db))
 
 main :: IO ()
-main = print (buildBib allTracks)
+main = do
+    let db = buildBib allTracks
+    print db
+    print (allAlbumRuntime db)
+    let db2 = rateTrack "Michael" (31::Id) Good db
+    print (bestAlbums db2 "Michael")
+
 

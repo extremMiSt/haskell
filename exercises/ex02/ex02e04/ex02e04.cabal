@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               mistlabyrinth
+name:               ex02e04
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -19,16 +19,16 @@ maintainer:         michael.steinle@gmail.com
 -- A copyright notice.
 -- copyright:
 -- category:
-extra-source-files: CHANGELOG.md, Input.hs, Lab.hs
+extra-source-files: CHANGELOG.md
 
-executable mistlabyrinth
-    main-is:  Main.hs
+executable ex02e04
+    main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules: Lab, Input
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
-    build-depends: base ^>=4.16.3.0, haskeline
+    build-depends:    base ^>=4.16.3.0
     hs-source-dirs:   app
     default-language: Haskell2010
