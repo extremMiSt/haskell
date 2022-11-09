@@ -54,7 +54,7 @@ replace (Conj t1 t2) r (1:ps) = Conj (replace t1 r ps) t2
 replace (Conj t1 t2) r (2:ps) = Conj t1 (replace t2 r ps)
 replace (Disj t1 t2) r (1:ps) = Disj (replace t1 r ps) t2
 replace (Disj t1 t2) r (2:ps) = Disj t1 (replace t2 r ps)
-replace t _ p = error (show p ++ " not valiD for " ++ show t)
+replace t _ p = error (show p ++ " not valid for " ++ show t)
 
 
 -------------------------------------------------------------------------------
