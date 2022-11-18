@@ -1,11 +1,13 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Monoid law, left identity" #-}
 {-# HLINT ignore "Monoid law, right identity" #-}
 module Main where
 import Test.QuickCheck (quickCheckAll, Arbitrary (arbitrary), quickCheck)
 import Test.QuickCheck.Gen (Gen)
+import System.Posix.Internals (newFilePath)
  
     --Ex01
 
@@ -23,10 +25,10 @@ cycle l = ls
 foldrLazy :: [Integer]
 foldrLazy = foldr (:) [] [1..] 
 
-foldrShort :: Bool
-foldrShort = foldr ((&&).(<(10::Integer))) True [1..]
+--foldrShort :: Bool
+--foldrShort = foldr ((&&).(<(10::Integer))) True [1..]
 
-    --Ex04
+    --Ex03
 
 data Vector2D  = Vector2D {x::Integer, y::Integer}
 
@@ -66,9 +68,16 @@ instance Monoid Sum where
     mempty :: Sum
     mempty = Sum 0
 
+--instance Arbitrary Sum where
+-- arbitrary :: Test.QuickCheck.Gen.Gen Sum
+--  arbitrary = do Sum <$> (arbitrary :: Gen Integer)
+
+
 instance Arbitrary Sum where
   arbitrary :: Test.QuickCheck.Gen.Gen Sum
-  arbitrary = do Sum <$> (arbitrary :: Gen Integer)
+  arbitrary = do 
+    x <- (arbitrary :: Gen Integer)
+    return (Sum x)
 
 prop_sum_asoc :: Sum -> Sum -> Sum -> Bool
 prop_sum_asoc a b c = (a<>b)<>c == a<>(b<>c)
@@ -97,11 +106,17 @@ prop_prod_asoc a b c = (a<>b)<>c == a<>(b<>c)
 prop_prod_neutral :: Product -> Bool
 prop_prod_neutral a = a == mempty <> a && a == a <> mempty
 
+foldMap :: Monoid m => (a -> m) -> [a] -> m
+foldMap f = foldr g nil 
+    where 
+        nil = mempty
+        g a m = f a <> m
+
 main :: IO ()
 main = do 
     print (take 5 (Main.iterate (2+) (1::Integer)))
     print (take 5 foldrLazy)
-    print foldrShort
+    --print foldrShort
     quickCheck prop_sum_asoc
     quickCheck prop_sum_neutral
     quickCheck prop_prod_asoc
