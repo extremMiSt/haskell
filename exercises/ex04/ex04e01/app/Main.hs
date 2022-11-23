@@ -108,8 +108,6 @@ main = do
     quickCheck prop_prod_neutral
 
 
-
-
 -----------------------------------------------------------------------------
 -- Generate a function to check all properties.
 --
