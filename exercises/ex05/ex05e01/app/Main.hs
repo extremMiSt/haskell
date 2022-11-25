@@ -44,18 +44,16 @@ unfoldr' f s | isNothing (f s) = []
                     (a,s') = fromJust (f s)
 
 map' :: (a->b) -> [a] -> [b]
-map' f = unfoldr' (f' f)
+map' f = unfoldr' f'
     where 
-        f' :: (a->b) -> [a] -> Maybe (b, [a])
-        f' _ [] = Nothing
-        f' g (x:xs) = Just (g x,xs) 
+        f' [] = Nothing
+        f' (x:xs) = Just (f x,xs) 
 
 range' :: Enum a => a -> a -> [a] --why do it any differently?, or rather.. why at all?
 range' m n = [m..n]
 
 range'' :: Integer -> Integer -> [Integer]
-range'' m n | m >= n  = [m] -- perhaps split to give [] when m>n
-            | otherwise  =  unfoldr' f m
+range'' m n = unfoldr' f m
                 where 
                     f s | n < s      = Nothing
                         | otherwise   = Just (s, s+1)

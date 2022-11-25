@@ -3,4 +3,5 @@ import Trie
 
 main :: IO ()
 main = do
-    print empty
+    b <- Trie.checkAll
+    print b
