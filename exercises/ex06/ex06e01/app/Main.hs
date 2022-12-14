@@ -7,7 +7,6 @@ data Result = Gr | Le | Eq
 
 getAnswer :: IO Result
 getAnswer = do
-    putStr "> "
     s <- getLine
     case s of
         "greater" -> return Gr
@@ -20,7 +19,7 @@ gameLoop (mi,ma) = do
     i <- randomRIO (mi,ma)
     putStrLn ("Is it " ++ show i ++ "?")
     s <- getAnswer
-    case s::Result of
+    case s of
         Eq -> return ()
         Gr -> gameLoop (i+1, ma)
         Le -> gameLoop (mi, i-1)
