@@ -8,7 +8,7 @@ splitRecords :: String -> [String]
 splitRecords [] = []
 splitRecords [x] = [[x]]
 splitRecords (x:y:ys) | x /= '\n'  || y /= '\n' = (x:h) :t
-                      | x == '\n'  || y == '\n' =  [] : splitRecords ys
+                      | x == '\n'  && y == '\n' =  [] : splitRecords ys
                       where
                         t = tail (splitRecords (y:ys))
                         h = head (splitRecords (y:ys))

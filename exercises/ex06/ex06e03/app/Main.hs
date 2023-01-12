@@ -1,6 +1,7 @@
 module Main where
 import Data.List
 import System.Environment
+import Control.Category ((>>>), Category)
 
 contains :: String -> String -> Bool
 string `contains` search = search `isInfixOf` string
@@ -13,7 +14,7 @@ main = do
     b <- getArgs
     case length b of --i hate cmd parsing...
         0 -> help
-        2 -> action False (b!!0) (b!!1)
+        2 -> action False (head b) (b!!1)
         3 -> case head b of
             "-v" -> action True (b!!1) (b!!2)
             x -> help
