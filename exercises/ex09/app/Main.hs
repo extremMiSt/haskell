@@ -139,5 +139,4 @@ main = do
     putStrLn "Monad+Applicative Match"
     quickCheck (prop_m_a_match::Fun String String -> Validation String String -> Bool)
     quickCheck (prop_m_a_match::Fun String String -> Error String String -> Bool)
-
     putStrLn "done"
