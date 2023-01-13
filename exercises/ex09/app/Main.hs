@@ -2,7 +2,7 @@
 module Main where
 import Test.QuickCheck ((===), quickCheck, oneof, applyFun, Fun)
 import qualified Test.QuickCheck.Property
-import Test.QuickCheck.Arbitrary (Arbitrary, arbitrary)
+import Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
 import qualified Test.QuickCheck as Test.QuickCheck.Gen
 
 data Validation e a = VFail e | VOk a
@@ -13,10 +13,16 @@ data Error e a = EFail e | EOk a
 instance (Arbitrary a, Arbitrary e) => Arbitrary (Validation a e) where
     arbitrary :: (Arbitrary a, Arbitrary e) => Test.QuickCheck.Gen.Gen (Validation a e)
     arbitrary = oneof [VFail <$> arbitrary, VOk <$> arbitrary]
+    --tutorial
+    shrink :: (Arbitrary a, Arbitrary e) => Validation a e -> [Validation a e]
+    shrink (VFail e) = VFail <$> shrink e
 
 instance (Arbitrary a, Arbitrary e) => Arbitrary (Error a e) where
     arbitrary :: (Arbitrary a, Arbitrary e) => Test.QuickCheck.Gen.Gen (Error a e)
     arbitrary = oneof [EFail <$> arbitrary, EOk <$> arbitrary]
+    --tutorial
+    shrink :: (Arbitrary a, Arbitrary e) => Error a e -> [Error a e]
+    shrink (EFail e) = EFail <$> shrink e
 
 instance Functor (Validation a) where 
     fmap :: (a2 -> b) -> Validation a1 a2 -> Validation a1 b
@@ -47,7 +53,7 @@ instance Applicative (Error a) where
     pure :: a2 -> Error a1 a2
     pure = EOk
     (<*>) :: Error a1 (a2 -> b) -> Error a1 a2 -> Error a1 b
-    EFail a <*> EFail b = EFail a
+    --EFail a <*> EFail b = EFail a
     EFail a <*> _ = EFail a
     _ <*> EFail a = EFail a
     EOk f <*> EOk b = EOk (f b)
@@ -77,6 +83,9 @@ prop_a_E_inter uf y = (u  <*> (pure y::Error String String)) == (pure ($ y) <*> 
     where 
         u = pure (applyFun uf)
 
+prop_ValidationAccumulatesErrors :: [Char] -> String -> [Char] -> Bool
+prop_ValidationAccumulatesErrors es a es' = (VFail es <*> VOk a <*> VFail es') == (VFail (es ++ es') :: Validation String String)
+
 prop_ErrorShortCircuits :: String -> Error String String -> Bool
 prop_ErrorShortCircuits e m = t == EFail e
     where 
@@ -84,12 +93,12 @@ prop_ErrorShortCircuits e m = t == EFail e
 
 instance Semigroup a => Monad (Validation a) where
     (>>=) :: Semigroup a => Validation a a1 -> (a1 -> Validation a b) -> Validation a b
-    VFail a >>= f = VFail a
+    VFail a >>= _ = VFail a
     VOk a >>= f = f a 
 
 instance Monad (Error a) where
     (>>=) :: Error a a1 -> (a1 -> Error a b) -> Error a b
-    EFail a >>= f = EFail a
+    EFail a >>= _ = EFail a
     EOk a >>= f = f a 
 
 prop_m_lid :: (Eq (m b), Monad m) => a -> Fun a (m b) -> Bool
@@ -106,10 +115,8 @@ prop_m_assoc m kf hf = (m >>= (\x -> k x >>= h)) == ((m >>= k) >>= h)
         k = applyFun kf
         h = applyFun hf
 
-prop_m_a_match :: (Eq (f b), Monad f) => Fun a b -> f a -> Bool
-prop_m_a_match m1f m2= (m1 <*> m2) == (m1 >>= (\x1 -> m2 >>= (\x2 -> return (x1 x2))))
-    where 
-        m1 = pure (applyFun m1f)
+prop_m_a_match :: (Eq (f b), Monad f) => f (Fun a b) -> f a -> Bool
+prop_m_a_match m1 m2= (applyFun <$> m1 <*> m2) == (m1 >>= (\x1 -> m2 >>= (\x2 -> return (applyFun x1 x2))))
 
 main :: IO ()
 main = do 
@@ -129,6 +136,8 @@ main = do
     quickCheck prop_a_E_inter
     putStrLn "Short Circuit"
     quickCheck prop_ErrorShortCircuits
+    putStrLn "Compose"
+    quickCheck prop_ValidationAccumulatesErrors
     putStrLn "Monad Laws"
     quickCheck (prop_m_lid::String -> Fun String (Validation String String) -> Bool)
     quickCheck (prop_m_lid::String -> Fun String (Error String String) -> Bool)
@@ -137,7 +146,7 @@ main = do
     quickCheck (prop_m_assoc::Validation String String -> Fun String (Validation String String) -> Fun String (Validation String String) -> Bool)
     quickCheck (prop_m_assoc::Error String String -> Fun String (Error String String) -> Fun String (Error String String) -> Bool)
     putStrLn "Monad+Applicative Match"
-    quickCheck (prop_m_a_match::Fun String String -> Validation String String -> Bool)
-    quickCheck (prop_m_a_match::Fun String String -> Error String String -> Bool)
+    quickCheck (prop_m_a_match::Validation String (Fun String String) -> Validation String String -> Bool)
+    quickCheck (prop_m_a_match::Error String (Fun String String) -> Error String String -> Bool)
 
     putStrLn "done"
