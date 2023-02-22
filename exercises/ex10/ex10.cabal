@@ -1,0 +1,30 @@
+cabal-version:      2.4
+name:               ex10
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+-- The license under which the package is released.
+-- license:
+author:             Michael Steinle
+maintainer:         michael.steinle@gmail.com
+
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files: CHANGELOG.md
+
+executable ex10
+    main-is:          Main.hs
+    other-modules:    MiniLang, MiniLangParser, Parser, SimplePrelude
+    build-depends:    base ^>=4.16.3.0, containers, QuickCheck
+    hs-source-dirs:   app
+    default-language: Haskell2010
+    -- other-extensions:
