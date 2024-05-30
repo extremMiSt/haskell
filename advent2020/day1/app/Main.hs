@@ -20,5 +20,10 @@ main = do
     let p = makePairs l
     let (a,b) = head (findSum (2020::Integer) p)
     print (a*b)
+    --print (commonPrefix "aaaabb" "aaaabc")
 
-
+--commonPrefix :: String -> String -> String
+--commonPrefix [] _ = []
+--commonPrefix _ [] = []
+--commonPrefix (x:xs) (y:ys) | x==y = x:commonPrefix xs ys
+--commonPrefix (x:xs) (y:ys) | x/=y = []
