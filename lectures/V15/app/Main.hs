@@ -64,6 +64,13 @@ instance f :<: (f :+: g) where
 instance (f :<: g) => f :<: (h :+: g) where
     inj = Inr . inj
 
+data Zero f
+
+instance Functor Zero where
+  fmap :: (a -> b) -> Zero a -> Zero b
+  fmap = undefined
+
+  
 
 
 
